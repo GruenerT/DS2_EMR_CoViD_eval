@@ -40,7 +40,7 @@ province_size = {
     32: 265140,
     33: 256458,
     34: 194359,
-    40: 0
+    40: 0           # EMR total
 }
 
 for key, val in province_size.items():
