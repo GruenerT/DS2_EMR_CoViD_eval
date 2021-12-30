@@ -82,6 +82,7 @@ font = {#'family': 'serif',
         'weight': 'normal',
         'fontsize': 'small'
         }
+        
 # emr_cols = ['Date', 'Province_Id', 'Daily_Total', 'Daily_100k', 'N_Day_Rate','N_Day_Rate_Change','N_Day_Rate_Change_Sliding_Window']
 
 # ref_cols = ['Date', 'Province_Id', 'Work_Commute_Allowed', 'Leisure_Travel_Allowed', 'Holiday', 'Vacation']

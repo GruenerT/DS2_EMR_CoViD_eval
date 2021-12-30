@@ -1,19 +1,18 @@
+import matplotlib.pyplot as plt
+
+from datetime import datetime as dt, timedelta
+
+import pandas as pd
+import numpy as np
+
+import init as util
 
 def addDateTypeColumn(df, colName='XDate'):
-    from datetime import datetime as dt
-
     dfc = df.copy()
     dfc[colName] = dfc.apply(lambda x: dt.strptime(x['Date'],"%Y-%m-%d"), axis=1)
     return dfc
 
 def addDayOffStreaks(df,ax = None, streakLabel='Off days'):
-    import pandas as pd
-    import numpy as np
-
-    import matplotlib.pyplot as plt
-
-    from datetime import datetime as dt, timedelta
-
     dfc = df.copy()
     dfc['Day_Off'] = ( dfc['Holiday'] + dfc['Vacation'] ) > 0
     dfc['start_of_streak'] = dfc.Day_Off.ne(dfc['Day_Off'].shift())
@@ -40,13 +39,6 @@ def addDayOffStreaks(df,ax = None, streakLabel='Off days'):
             labeled = True
 
 def addDayOffStreaksToAx(df, ax):
-    import pandas as pd
-    import numpy as np
-
-    import matplotlib.pyplot as plt
-
-    from datetime import datetime as dt, timedelta
-
     dfc = df.copy()
     dfc['Day_Off'] = ( dfc['Holiday'] + dfc['Vacation'] ) > 0
     dfc['start_of_streak'] = dfc.Day_Off.ne(dfc['Day_Off'].shift())
@@ -61,12 +53,6 @@ def addDayOffStreaksToAx(df, ax):
         ax.axvspan(start,end, facecolor='grey', alpha=0.5)
         
 def addProvince(df, provinceId, ax=None):
-    import pandas as pd
-    import numpy as np
-
-    import matplotlib.pyplot as plt
-    import utility.init as util
-
     x = df.loc[df['Province_Id']== provinceId, 'XDate']
     y = df.loc[df['Province_Id']== provinceId, 'N_Day_Rate_Change_Sliding_Window']
     if ax is None:
@@ -81,8 +67,6 @@ def addProvince(df, provinceId, ax=None):
         ax.set_ylabel(ylabel, fontdict=util.font)
 
 def sketchGraph(df, provinces, refDf = None, streakLabel='Off days', offDayStreak=False, offDayFactor = False):
-    import matplotlib.pyplot as plt
-
     fig, ax1 = plt.subplots()
     ax2 = ax1.twinx()
 
@@ -109,3 +93,21 @@ def cutToTimeframe(df, start='2020-06-15', end='2020-09-01'):
     df_c = df_c.loc[df_c['Date'] >= start]
     df_c = df_c.loc[df_c['Date'] <= end]
     return df_c
+
+def loadEmrData():
+    emr_df = pd.read_csv(util.emr_infection_data)
+    emr_df = addDateTypeColumn(emr_df,'Date')
+
+    return emr_df
+    
+def loadRefData():
+    de_ref_df = pd.read_csv(util.de_reference_data)
+    nl_ref_df = pd.read_csv(util.nl_reference_data)
+    be_ref_df = pd.read_csv(util.be_reference_data)
+
+    # add date typ columns
+    de_ref_df = addDateTypeColumn(de_ref_df,'Date')
+    nl_ref_df = addDateTypeColumn(nl_ref_df,'Date')
+    be_ref_df = addDateTypeColumn(be_ref_df,'Date')
+    
+    return be_ref_df, nl_ref_df, de_ref_df
