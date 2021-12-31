@@ -7,9 +7,16 @@ import numpy as np
 
 import init as util
 
-def addDateTypeColumn(df, colName='XDate'):
+def addDateTypeColumn(df, colName='Date'):
     dfc = df.copy()
     dfc[colName] = dfc.apply(lambda x: dt.strptime(x['Date'],"%Y-%m-%d"), axis=1)
+    return dfc
+
+def reIndexToDate(df, colName='Date'):
+    dfc = df.copy()
+    dfc = dfc.set_index('Date')
+    dfc = dfc.asfreq('D')
+    dfc = dfc.sort_index()
     return dfc
 
 def addDayOffStreaks(df,ax = None, streakLabel='Off days'):
@@ -24,7 +31,8 @@ def addDayOffStreaks(df,ax = None, streakLabel='Off days'):
     labeled = False
 
     for idx, streak in dfc.iterrows():
-        end = streak['XDate']
+        end = streak['Date']
+        # end = dt.strptime(idx,"%Y-%m-%d")
         start = end - timedelta(days = streak['streak_counter'])
         if labeled:
             if ax is None:
