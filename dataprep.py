@@ -237,8 +237,12 @@ def prepareGermanRefCal(settings):
         '2021-10-30', #
         '2021-10-31', #
         '2021-11-01',
-        '2021-12-25',
-        '2021-12-26'
+        '2021-12-24',
+        '2021-12-25', #
+        '2021-12-26', #
+        '2021-12-31',
+        '2022-01-01', #
+        '2022-01-02', #
     }
 
     de_vacation = pd.date_range(start='2020-01-01',end='2020-01-06')
@@ -251,7 +255,7 @@ def prepareGermanRefCal(settings):
     de_vacation = de_vacation.append(pd.date_range(start='2021-05-22',end='2021-05-25'))
     de_vacation = de_vacation.append(pd.date_range(start='2021-07-03',end='2021-08-17'))
     de_vacation = de_vacation.append(pd.date_range(start='2021-10-09',end='2021-10-24'))
-    de_vacation = de_vacation.append(pd.date_range(start='2021-12-24',end='2021-12-31'))
+    de_vacation = de_vacation.append(pd.date_range(start='2021-12-24',end='2022-01-02'))
 
     de_ref_cal_df = setRefDates(de_ref_cal_df, de_holidays, 'Holiday')
     de_ref_cal_df = setRefDates(de_ref_cal_df, de_vacation, 'Vacation')
@@ -297,8 +301,16 @@ def prepareDutchRefCal(settings):
         '2021-05-22', #
         '2021-05-23', #
         '2021-05-24',
-        '2021-12-25',
-        '2021-12-26'
+        '2021-12-24',
+        '2021-12-25', #
+        '2021-12-26', #
+        '2021-12-31',
+        '2022-01-01', #
+        '2022-01-02', #
+        '2022-01-06',
+        '2022-01-07', #
+        '2022-01-08', #
+        '2022-01-09', #
     }
 
     nl_vacation = pd.date_range(start='2020-01-01',end='2020-01-05')
@@ -369,9 +381,17 @@ def prepareBelgianRefCal(settings):
         '2021-11-12', #
         '2021-11-13', #
         '2021-11-14', #
+        '2021-12-24',
         '2021-12-25',
         '2021-12-26',
-        '2021-12-27'
+        '2021-12-27',
+        '2021-12-31',
+        '2022-01-01',
+        '2022-01-02',
+        '2022-01-06',
+        '2022-01-07', #
+        '2022-01-08', #
+        '2022-01-09', #
     }
 
     be_vacation = pd.date_range(start='2020-01-01',end='2020-01-05')

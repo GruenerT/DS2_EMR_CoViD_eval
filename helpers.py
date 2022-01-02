@@ -165,3 +165,41 @@ def recursiveWindowForecast(df, start, end, settings, params = {'learning_rate':
         ax.legend()
 
     return predictions
+
+def addToMatrixPlot(df, ax, id, ref_df):
+    x = df.loc[df['Province_Id']== id, 'Date']
+    y = df.loc[df['Province_Id']== id, 'NDRC_Sliding_Window']
+    ax.plot(x, y, color=util.class_colors[id])
+    addDayOffStreaks(ref_df, ax)
+    ax.set_ylabel(util.class_labels[id])
+
+def scatterInfectionComparison(emr_df, be_ref_df, nl_ref_df, de_ref_df, settings):
+    fig, axs = plt.subplots(4,3, sharex=True, sharey=True)
+
+    for id in range(0,4):
+        addToMatrixPlot(emr_df, axs[id, 0], (id+1)*10, be_ref_df)
+        addToMatrixPlot(emr_df, axs[id, 1], (id+1)*10, nl_ref_df)
+        addToMatrixPlot(emr_df, axs[id, 2], (id+1)*10, de_ref_df)
+
+    axs[3, 2].set_xlabel("German off-days")
+    axs[3, 1].set_xlabel("Dutch off-days")
+    axs[3, 0].set_xlabel("Belgian off-days")
+
+    #for ax in axs.flat:
+    #    ax.set(xlabel='x-label', ylabel='y-label')
+
+    # Hide x labels and tick labels for top plots and y ticks for right plots.
+    for ax in axs.flat:
+        ax.label_outer()
+        show = True
+        for label in ax.xaxis.get_ticklabels():
+            # label is a Text instance
+            label.set_rotation(45)
+            if not show:
+                label.set_visible(False)
+                show = True
+            else:
+                show = False
+
+    fig.suptitle(str(settings.incident_window_size)+"-day infection rate change (sliding window) for " + str(settings.timeframe_start) + " - " + str(settings.timeframe_end))
+    plt.show()
