@@ -1,4 +1,4 @@
-,Date,Province_Id,Holiday,Vacation,Day_Off,OffDayFactor
+,Date,Province_Id,Holiday,Vacation,OffDay,OffDayFactor
 0,2020-03-15,20,0,1,True,1.0
 1,2020-03-16,20,0,1,True,2.0
 2,2020-03-17,20,0,1,True,3.0

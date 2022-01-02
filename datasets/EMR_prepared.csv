@@ -1,4 +1,4 @@
-,Date,Province_Id,Daily_Total,Daily_100k,N_Day_Rate,N_Day_Rate_Change,N_Day_Rate_Change_Sliding_Window
+,Date,Province_Id,Daily_Total,Daily_100k,N_Day_Rate,NDR_Change,NDRC_Sliding_Window
 14,2020-03-15,10,52,2.6167866865945038,,,
 637,2020-03-15,20,22.0,1.9715116565626696,,,
 1334,2020-03-15,30,97,7.622262664743028,,,

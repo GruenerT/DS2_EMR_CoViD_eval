@@ -1,18 +1,3 @@
-# Some constants
-base_dir = "./"
-data_dir = base_dir + "datasets/"
-emr_infection_data = data_dir + "EMR_prepared.csv"
-
-de_reference_data = data_dir + "de_ref_cal.csv"
-nl_reference_data = data_dir + "nl_ref_cal.csv"
-be_reference_data = data_dir + "be_ref_cal.csv"
-
-
-incident_window_size = 7
-change_rate_window_size = 7
-
-timeframe_start = '2020-03-15'
-timeframe_end = '2021-11-15'
 
 
 province_id = {
@@ -82,7 +67,3 @@ font = {#'family': 'serif',
         'weight': 'normal',
         'fontsize': 'small'
         }
-        
-# emr_cols = ['Date', 'Province_Id', 'Daily_Total', 'Daily_100k', 'N_Day_Rate','N_Day_Rate_Change','N_Day_Rate_Change_Sliding_Window']
-
-# ref_cols = ['Date', 'Province_Id', 'Work_Commute_Allowed', 'Leisure_Travel_Allowed', 'Holiday', 'Vacation']

@@ -5,7 +5,7 @@ from datetime import datetime as dt, timedelta
 import init as util
 from helpers import *
 
-emr_cols = ['Date', 'Province_Id', 'Daily_Total', 'Daily_100k', 'N_Day_Rate','N_Day_Rate_Change','N_Day_Rate_Change_Sliding_Window']
+emr_cols = ['Date', 'Province_Id', 'Daily_Total', 'Daily_100k', 'N_Day_Rate','NDR_Change','NDRC_Sliding_Window']
 ref_cols = ['Date', 'Province_Id', 'Holiday', 'Vacation']
 
 # cumulative total to daily total
@@ -32,15 +32,15 @@ def incident_rate_change(df):
     df_c = df.copy()
     for province in df_c['Province_Id'].unique():
         mask = df_c['Province_Id'] == province 
-        df_c.loc[mask, 'N_Day_Rate_Change'] = df_c.loc[mask, 'N_Day_Rate'].rolling(2).apply(calc_change_factor, raw=True )
+        df_c.loc[mask, 'NDR_Change'] = df_c.loc[mask, 'N_Day_Rate'].rolling(2).apply(calc_change_factor, raw=True )
     return df_c
 
 # Add sliding window change rate
-def sliding_window_change_rate(df):
+def sliding_window_change_rate(df, windowSize):
     df_c = df.copy()
     for province in df_c['Province_Id'].unique():
         mask = df_c['Province_Id'] == province
-        df_c.loc[mask, 'N_Day_Rate_Change_Sliding_Window'] = df_c.loc[mask, 'N_Day_Rate_Change'].rolling(util.change_rate_window_size).mean()
+        df_c.loc[mask, 'NDRC_Sliding_Window'] = df_c.loc[mask, 'NDR_Change'].rolling(windowSize).mean()
     return df_c
 
 def reIndex(df, fillNan=True):
@@ -55,11 +55,11 @@ def reIndex(df, fillNan=True):
 
     return df_c
 
-def loadBelgianData():
+def loadBelgianData(settings):
     be_provs = ['Liège','Limburg']
     be_df = pd.DataFrame(columns=emr_cols)
 
-    be_raw = pd.read_csv(util.data_dir + 'orig/COVID19BE_CASES_AGESEX.csv', sep=',')
+    be_raw = pd.read_csv(settings.original_be_data, sep=',')
     be_raw = be_raw[be_raw['PROVINCE'].isin(be_provs)]
     be_raw = be_raw[be_raw.DATE.notnull()]
     be_raw.loc[be_raw['PROVINCE']=='Liège','Province_Id'] = 11
@@ -74,16 +74,18 @@ def loadBelgianData():
     be_total['Province_Id'] = 10
     be_df = be_df.append(be_total, ignore_index=True)
     be_df = be_df.loc[be_df.Province_Id == 10]
+    be_df = be_df.loc[:, emr_cols]
     be_df = reIndex(be_df)
+
     # added days need a new Province_Id
     be_df['Province_Id'] = 10
     return be_df
 
-def loadDutchData():
+def loadDutchData(settings):
     nl_provs = ['Limburg']
     nl_df = pd.DataFrame(columns=emr_cols)
 
-    nl_raw = pd.read_csv(util.data_dir + 'orig/COVID-19_aantallen_gemeente_cumulatief.csv', sep=';')
+    nl_raw = pd.read_csv(settings.original_nl_data, sep=';')
     nl_raw = nl_raw[nl_raw['Province'].isin(nl_provs)]
     nl_raw = nl_raw.rename(columns={"Date_of_report":"Date","Total_reported":"Daily_Total"})
     nl_raw = nl_raw.groupby(['Date']).sum().reset_index()
@@ -95,14 +97,16 @@ def loadDutchData():
     nl_raw = nl_raw[nl_raw.Daily_Total.notnull()]
 
     nl_df = nl_df.append(nl_raw, ignore_index=True)
+    nl_df = nl_df.loc[:, emr_cols]
     nl_df = reIndex(nl_df)
+
     # added days need a new Province_Id
     nl_df['Province_Id'] = 20
     return nl_df
 
-def loadGermanData():
+def loadGermanData(settings):
     de_df = pd.DataFrame(columns=emr_cols)
-    de_raw = pd.read_csv(util.data_dir + 'orig/RKI_COVID19.csv', sep=',')
+    de_raw = pd.read_csv(settings.original_de_data, sep=',')
 
     de_raw = de_raw[de_raw['Landkreis'].isin(util.province_id.keys())]
     for lk, id in util.province_id.items():
@@ -119,55 +123,57 @@ def loadGermanData():
     de_total['Province_Id'] = 30
     de_df = de_df.append(de_total, ignore_index=True)
     de_df = de_df.loc[de_df.Province_Id == 30]
+    de_df = de_df.loc[:, emr_cols]
     de_df = reIndex(de_df)
+
     # added days need a new Province_Id
     de_df['Province_Id'] = 30
     return de_df
 
-def loadEmrData():
+def loadEmrData(settings):
     emr_df = pd.DataFrame(columns=emr_cols)
 
-    emr_df = emr_df.append(loadBelgianData().reset_index(), ignore_index=True)
-    emr_df = emr_df.append(loadDutchData().reset_index(), ignore_index=True)
-    emr_df = emr_df.append(loadGermanData().reset_index(), ignore_index=True)
+    emr_df = emr_df.append(loadBelgianData(settings).reset_index(), ignore_index=True)
+    emr_df = emr_df.append(loadDutchData(settings).reset_index(), ignore_index=True)
+    emr_df = emr_df.append(loadGermanData(settings).reset_index(), ignore_index=True)
 
-    emr_df = emr_df.loc[:,:'N_Day_Rate_Change_Sliding_Window']
+    # emr_df = emr_df.loc[:,:'NDRC_Sliding_Window']
 
     # Add EMR total
     emr_total = emr_df.groupby(['Date']).sum().reset_index()
     emr_total['Province_Id'] = 40
     emr_df = emr_df.append(emr_total, ignore_index=True)
 
-    emr_df = emr_df.loc[emr_df['Date'] >= dt.strptime(util.timeframe_start,"%Y-%m-%d")]
-    emr_df = emr_df.loc[emr_df['Date'] <= dt.strptime(util.timeframe_end,"%Y-%m-%d")]
+    emr_df = emr_df.loc[emr_df['Date'] >= settings.timeframe_start]
+    emr_df = emr_df.loc[emr_df['Date'] <= settings.timeframe_end]
     emr_df = emr_df.sort_values(by=['Date', 'Province_Id'])
     
     return emr_df
 
-def prepareData(save=True):
-    emr_df = loadEmrData()
+def prepareData(settings):
+    emr_df = loadEmrData(settings)
     emr_df = emr_df.sort_values(by=['Date'])
 
     # scale to 100k
     emr_df = daily_per_100k(emr_df)
 
     # N-Day Rate
-    emr_df['N_Day_Rate'] = emr_df['Daily_100k'].rolling(util.incident_window_size).sum()
+    emr_df['N_Day_Rate'] = emr_df['Daily_100k'].rolling(settings.incident_window_size).sum()
 
     # Rate Change
     emr_df = incident_rate_change(emr_df)
 
-    emr_df = sliding_window_change_rate(emr_df)
+    emr_df = sliding_window_change_rate(emr_df, settings.change_rate_window_size)
 
-    if save:
-        emr_df.to_csv(util.emr_infection_data)
+    if settings.save_generated_data:
+        emr_df.to_csv(settings.emr_infection_data)
 
     return emr_df
 
 
-def initCal(Province_Id):
+def initCal(Province_Id, settings):
     df = pd.DataFrame(columns=ref_cols)
-    df['Date'] = pd.date_range(start=util.timeframe_start,end=util.timeframe_end)
+    df['Date'] = pd.date_range(start=settings.timeframe_start,end=settings.timeframe_end)
     df['Province_Id'] = Province_Id
     # df['Work_Commute_Allowed'] = 1
     # df['Leisure_Travel_Allowed'] = 1
@@ -182,8 +188,8 @@ def setRefDates(df, dates, targetColumn, setTo = 1):
 
     return dfc
 
-def prepareGermanRefCal():
-    de_ref_cal_df = initCal(30)
+def prepareGermanRefCal(settings):
+    de_ref_cal_df = initCal(30, settings)
 
     de_holidays = {
         '2020-01-01',
@@ -252,8 +258,8 @@ def prepareGermanRefCal():
 
     return de_ref_cal_df
 
-def prepareDutchRefCal():
-    nl_ref_cal_df = initCal(20)
+def prepareDutchRefCal(settings):
+    nl_ref_cal_df = initCal(20, settings)
 
     nl_holidays = {
         '2020-01-01',
@@ -316,8 +322,8 @@ def prepareDutchRefCal():
     nl_ref_cal_df = setRefDates(nl_ref_cal_df, nl_vacation, 'Vacation')
     return nl_ref_cal_df
 
-def prepareBelgianRefCal():
-    be_ref_cal_df = initCal(10)
+def prepareBelgianRefCal(settings):
+    be_ref_cal_df = initCal(10, settings)
 
     be_holidays = {
         '2020-01-01',
@@ -389,24 +395,24 @@ def prepareBelgianRefCal():
     be_ref_cal_df = setRefDates(be_ref_cal_df, be_vacation, 'Vacation')
     return be_ref_cal_df
 
-def addVacationWeightFactor(df):
+def addVacationWeightFactor(df, settings):
     dfc = df.copy()
-    dfc['Day_Off'] = ( dfc['Holiday'] + dfc['Vacation'] ) > 0
-    dfc['OffDayFactor'] = dfc['Day_Off'].rolling(14, min_periods=1).apply(lambda x : np.sum(x, dtype=int), raw=True)
+    dfc['OffDay'] = ( dfc['Holiday'] + dfc['Vacation'] ) > 0
+    dfc['OffDayFactor'] = dfc['OffDay'].rolling(settings.off_day_relevance_window, min_periods=1).apply(lambda x : np.sum(x, dtype=int), raw=True)
     return dfc
 
-def prepareRefCals(save=True):
-    be_ref_cal_df = prepareBelgianRefCal()
-    de_ref_cal_df = prepareGermanRefCal()
-    nl_ref_cal_df = prepareDutchRefCal()
+def prepareRefCals(settings):
+    be_ref_cal_df = prepareBelgianRefCal(settings)
+    de_ref_cal_df = prepareGermanRefCal(settings)
+    nl_ref_cal_df = prepareDutchRefCal(settings)
 
-    be_ref_cal_df = addVacationWeightFactor(be_ref_cal_df)
-    de_ref_cal_df = addVacationWeightFactor(de_ref_cal_df)
-    nl_ref_cal_df = addVacationWeightFactor(nl_ref_cal_df)
+    be_ref_cal_df = addVacationWeightFactor(be_ref_cal_df, settings)
+    de_ref_cal_df = addVacationWeightFactor(de_ref_cal_df, settings)
+    nl_ref_cal_df = addVacationWeightFactor(nl_ref_cal_df, settings)
 
-    if save:
-        de_ref_cal_df.to_csv(util.de_reference_data)
-        nl_ref_cal_df.to_csv(util.nl_reference_data)
-        be_ref_cal_df.to_csv(util.be_reference_data)
+    if settings.save_generated_data:
+        de_ref_cal_df.to_csv(settings.de_reference_data)
+        nl_ref_cal_df.to_csv(settings.nl_reference_data)
+        be_ref_cal_df.to_csv(settings.be_reference_data)
 
     return be_ref_cal_df, nl_ref_cal_df, de_ref_cal_df
