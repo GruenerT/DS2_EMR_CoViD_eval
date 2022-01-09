@@ -160,7 +160,7 @@ def recursiveWindowForecast(df, start, end, settings, params = {'learning_rate':
         predictions.NDRC_Sliding_Window.plot(ax=ax, label='predictions')
         if refDf is not None:
             refDfC = refDf.copy()
-            mask = (refDfC.Date > startDate) & (refDfC.Date < endDate)
+            mask = (refDfC.Date > timeframe_start) & (refDfC.Date < timeframe_end)
             addDayOffStreaks(refDfC.loc[mask], ax = ax, streakLabel='Off days')
         ax.legend()
 
