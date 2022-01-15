@@ -1,1 +1,2 @@
-# DS2_EMR_CoViD_eval
+# Data Science 2 - Seminar work
+## Euregio Maas-Rhine CoViD interactions based on vacation-days/holidays
