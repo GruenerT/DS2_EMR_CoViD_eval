@@ -173,7 +173,7 @@ def addToMatrixPlot(df, ax, id, ref_df):
     addDayOffStreaks(ref_df, ax)
     ax.set_ylabel(util.class_labels[id])
 
-def scatterInfectionComparison(emr_df, be_ref_df, nl_ref_df, de_ref_df, settings):
+def scatterInfectionComparison(emr_df, be_ref_df, nl_ref_df, de_ref_df, settings, plotsize=[12,10]):
     fig, axs = plt.subplots(4,3, sharex=True, sharey=True)
 
     for id in range(0,4):
@@ -185,15 +185,11 @@ def scatterInfectionComparison(emr_df, be_ref_df, nl_ref_df, de_ref_df, settings
     axs[3, 1].set_xlabel("Dutch off-days")
     axs[3, 0].set_xlabel("Belgian off-days")
 
-    #for ax in axs.flat:
-    #    ax.set(xlabel='x-label', ylabel='y-label')
-
     # Hide x labels and tick labels for top plots and y ticks for right plots.
     for ax in axs.flat:
         ax.label_outer()
         show = True
         for label in ax.xaxis.get_ticklabels():
-            # label is a Text instance
             label.set_rotation(45)
             if not show:
                 label.set_visible(False)
@@ -202,4 +198,38 @@ def scatterInfectionComparison(emr_df, be_ref_df, nl_ref_df, de_ref_df, settings
                 show = False
 
     fig.suptitle(str(settings.incident_window_size)+"-day infection rate change (sliding window) for " + str(settings.timeframe_start) + " - " + str(settings.timeframe_end))
+
+    fig.set_size_inches(plotsize[0],plotsize[1])
+    plt.show()
+
+
+def plotCrossBorderScores(scores):
+    fig, ax = plt.subplots()
+
+    ax.set_xlabel( "Off-Days affecting Region", fontdict=util.font)
+    ax.set_ylabel( "Mean absolute error", fontdict=util.font)
+
+    x = scores['offdays'] + " - " + scores['region']
+    y = scores['score'] * -1
+
+    for label in ax.xaxis.get_ticklabels():
+        label.set_rotation(80)
+
+    plt.plot(x,y,marker='o', linestyle='dotted')
+    plt.show()
+
+def plotOffDaysFactor(case_df, off_days_df):
+    fig, ax1 = plt.subplots()
+    ax2 = ax1.twinx()
+
+    ax1.plot(case_df.Date, case_df.NDRC_Sliding_Window)
+    ax2.plot(off_days_df.Date, off_days_df.OffDayFactor, color='red')
+
+    ax1.set_ylabel( "N-Day rate change sliding window", fontdict=util.font)
+    ax2.set_ylabel( "Off-Days Factor", fontdict=util.font)
+
+    for label in ax1.xaxis.get_ticklabels():
+        label.set_rotation(75)
+    
+    fig.set_size_inches(12, 4)
     plt.show()
