@@ -3,7 +3,9 @@
 
 ### Code
 All code and content can be accessed from the ipynb
-* Main evaluation content in the [Jupyter Notebook](https://github.com/GruenerT/DS2_EMR_CoViD_eval/blob/master/Seminar_CoViD_tristate_comparison.ipynb) - Seminar_CoViD_tristate_comparison.ipynb
+* Main evaluation content in the 
+  * [Jupyter Notebook](https://github.com/GruenerT/DS2_EMR_CoViD_eval/blob/master/Seminar_CoViD_tristate_comparison.ipynb) - Seminar_CoViD_tristate_comparison.ipynb
+  * [PDF Export of ipynb](https://github.com/GruenerT/DS2_EMR_CoViD_eval/blob/master/Seminar_CoViD_tristate_comparison.pdf) - Seminar_CoViD_tristate_comparison.pdf
 * Data preparation code in [dataprep.py](https://github.com/GruenerT/DS2_EMR_CoViD_eval/blob/master/dataprep.py)
 * Supporting code for ipynb in [helpers.py](https://github.com/GruenerT/DS2_EMR_CoViD_eval/blob/master/helpers.py)
 * Some static content in [init.py](https://github.com/GruenerT/DS2_EMR_CoViD_eval/blob/master/init.py)
