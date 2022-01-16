@@ -55,18 +55,20 @@ def addProvince(df, provinceId, settings, ax=None):
         plt.ylabel( str(settings.incident_window_size)+"-day infection rate change (sliding window)", fontdict=util.font)
         plt.plot(x,y, label = util.class_labels[provinceId], color = util.class_colors[provinceId])
     else:
-        xlabel =  str(settings.timeframe_start + " - " + settings.timeframe_end)
+        xlabel =  str(settings.timeframe_start) + " - " + str(settings.timeframe_end)
         ylabel = str(settings.incident_window_size)+"-day infection rate change (sliding window)"
         ax.plot(x,y, label = util.class_labels[provinceId], color = util.class_colors[provinceId])
         ax.set_xlabel(xlabel, fontdict=util.font)
         ax.set_ylabel(ylabel, fontdict=util.font)
+        for label in ax.xaxis.get_ticklabels():
+            label.set_rotation(80)
 
-def sketchGraph(df, provinces, settings, refDf = None, streakLabel='Off days', offDayStreak=False, offDayFactor = False):
+def sketchGraph(df, provinces, settings, refDf = None, streakLabel='Off days', offDayStreak=False, offDayFactor = False, plotsize=[12,10]):
     fig, ax1 = plt.subplots()
     ax2 = ax1.twinx()
 
     if refDf is not None and offDayStreak:
-        addDayOffStreaks(refDf, streakLabel=streakLabel, ax=ax1)
+        addDayOffStreaks(refDf, ax=ax1, streakLabel=streakLabel)
 
     for prov in provinces:
         addProvince(df, prov, settings, ax=ax1)
@@ -78,6 +80,8 @@ def sketchGraph(df, provinces, settings, refDf = None, streakLabel='Off days', o
 
     ax1.legend(loc='upper left')
     ax2.legend(loc='upper right')
+
+    fig.set_size_inches(plotsize[0],plotsize[1])
 
     plt.legend()
     plt.show()
