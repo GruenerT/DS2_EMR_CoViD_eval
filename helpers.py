@@ -207,7 +207,7 @@ def scatterInfectionComparison(emr_df, be_ref_df, nl_ref_df, de_ref_df, settings
     plt.show()
 
 
-def plotCrossBorderScores(scores):
+def plotCrossBorderScores(scores, title, y_axis_range = None):
     fig, ax = plt.subplots()
 
     ax.set_xlabel( "Off-Days affecting Region", fontdict=util.font)
@@ -218,7 +218,9 @@ def plotCrossBorderScores(scores):
 
     for label in ax.xaxis.get_ticklabels():
         label.set_rotation(80)
-
+    plt.title(title)
+    if y_axis_range is not None:
+        plt.ylim(top=y_axis_range[1], bottom= y_axis_range[0])
     plt.plot(x,y,marker='o', linestyle='dotted')
     plt.show()
 
